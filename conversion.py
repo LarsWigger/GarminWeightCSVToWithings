@@ -2,10 +2,13 @@ import datetime
 import locale
 import math
 
-# needed to deal with German date format
-locale.setlocale(locale.LC_TIME, "de_DE")
-
+# configuration variables
 input_filename = "Gewicht.csv"
+locale_name = "de_DE"
+measurements_per_file = 300 - 1  # in case withings counts the header as a line
+
+# needed to deal with date format
+locale.setlocale(locale.LC_TIME, "de_DE")
 
 with open("Gewicht.csv") as f:
     csv_lines = f.read().split("\n")
@@ -47,14 +50,15 @@ for line in csv_lines:
 
 del csv_lines  # no longer needed, get rid of it
 
-num_output_files = math.ceil(len(output_lines) / 300)
+num_output_files = math.ceil(len(output_lines) / measurements_per_file)
 
 print(
-    f"There are {len(output_lines)} measurements, so {num_output_files} are created to have no more than 300 entries per file")
+    f"There are {len(output_lines)} measurements, so {num_output_files} are created to have no more than {measurements_per_file} entries per file")
 
 for file_index in range(num_output_files):
     output_filename = f"withingsWeight{file_index}.csv"
-    file_lines = output_lines[0+file_index*300:300+(file_index*300)]
+    file_lines = output_lines[0+file_index*measurements_per_file:
+                              measurements_per_file+(file_index*measurements_per_file)]
     with open(output_filename, "w") as f:
         f.write("Date,Weight,Fat\n")
         f.write("\n".join(file_lines))
